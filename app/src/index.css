@@ -1,0 +1,54 @@
+/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background: url("https://www.transparenttextures.com/patterns/wood-pattern.png") center/cover fixed;
+  }
+
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;              /* 0.5rem between cells */
+    padding: 8px;
+    background: rgba(255,255,255,0.1); /* subtle bg if you like */
+    border-radius: 8px;
+  }
+  
+  .cell {
+    position: relative;
+    width: 5rem;           /* 80px */
+    height: 5rem;          /* 80px */
+    background: #fff;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  
+  .cell.selectable:hover {
+    background: #f0f0f0;
+  }
+  
+  .cell.occupied {
+    border-color: #888;
+  }
+  
+  .cell.locked {
+    cursor: default;
+    pointer-events: none;
+  }
+  
+  .cell.locked img {
+    opacity: 0.9;
+  }
+  
+  .cell.ring-4 {
+    /* if you still want to use Tailwind's ring util, it'll apply here */
+  }
+  
+  

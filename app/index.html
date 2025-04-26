@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <title>Tic Tac Toe</title>
-    <script type="module" src="./src/logic.js"></script>
-    <script type="module" src="./src/store.js"></script>
+    <!--<script type="module" src="./src/logic.js"></script>-->
+    <!--<script type="module" src="./src/store.js"></script>-->
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -76,6 +76,28 @@
               appDiv.style.display = "block";
               loginForm.style.display = "none";
               userInfo.style.display = "block";
+
+              // UP SERT USER PROFILE
+              user.getIdToken(/* forceRefresh= */ true)
+                .then(token => {
+                  return fetch('/create-user', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': 'Bearer ' + token,
+                      'Content-Type':  'application/json'
+                    },
+                    body: JSON.stringify({
+                      displayName: user.displayName || null,
+                      email:       user.email
+                    })
+                  });
+                })
+                .then(res => {
+                  if (!res.ok) console.error('create-user failed:', res.status);
+                })
+                .catch(err => console.error('create-user error:', err));
+
+
             } else {
               appDiv.style.display = "none";
               loginForm.style.display = "block";
@@ -96,8 +118,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen">
-    <div class="w-full max-w-sm p-6 bg-white rounded-lg shadow-lg">
+  <body class="bg-[#B2A997] bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] bg-repeat text-white flex flex-col items-center justify-center min-h-screen">
       <div id="login-form">
         <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" />
         <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-4 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" />
@@ -107,16 +128,16 @@
         <button onclick="handleRegister()" class="w-full py-3 mt-4 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">Register</button>
         
         <button onclick="handleGoogleLogin()" class="w-full py-3 mt-4 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">Login with Google</button>
-      </div>
+      </div>  
   
-      <div id="user-info" style="display:none;" class="text-center mt-6">
+      <div id="user-info" style="display:none;" class="absolute top-4 left-4 text-left p-4 rounded ">
         <p class="text-gray-700">Welcome, <span id="user-name" class="font-semibold text-blue-600"></span></p>
         <button onclick="handleLogout()" class="mt-4 py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">Logout</button>
       </div>
     </div>
 
     <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
 
   </body>
 </html>

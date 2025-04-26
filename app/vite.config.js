@@ -12,6 +12,21 @@ export default ({ mode }) => {
           target: env.VITE_BACKEND_URL,
           changeOrigin: true,
         },
+        '/create-user': {
+          target: env.VITE_BACKEND_URL,      // ← use the Docker-network host
+          changeOrigin: true,
+          secure: false,                     // ← in case it’s http
+        },
+        '/api': {
+          target: env.VITE_BACKEND_URL,      // ← use the Docker-network host
+          changeOrigin: true,
+          secure: false,                     // ← in case it’s http
+        },
+        '/unlock-achievement': {
+          target: env.VITE_BACKEND_URL,
+          changeOrigin: true,
+          secure: false,
+        },
       },
       watch: {
         usePolling: true,

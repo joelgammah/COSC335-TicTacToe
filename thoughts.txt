@@ -1,0 +1,50 @@
+SCORING
+
+I want us to work on the scoring for all the buildings. Remember this is a solo gameplay. We are only using these buildings and Cathedral of Caterina.
+
+1. Cottage:
+3 pts if this building is fed
+Notes: Unfed Cottages remain on the board but do not score points on their own. Some other buildings, such as Wells, treat fed and unfed Cottages the same. You may construct Cottages even if you don’t yet have a Farm.
+
+
+2. Farm:
+Feeds 4 Cottage buildings anywhere in your town.
+
+
+3. Chapel:
+1 point for each fed Cottage
+Notes: Score Chapels individually. A town with 3 fed Cottages and 1 unfed Cottage will make each Chapel worth 3 points. Chapels do not earn points for unfed Cottage.
+
+4. Tavern:
+{1: 2, 2:5, 3:9, 4:14, 5:20}
+Notes: Taverns score points as a group. For example, 4 Taverns are worth 14 points total (but can be anywhere on the board). Any Taverns constructed after the 5th Tavern do not increase your Tavern score.
+
+5. Well:
+1 point for each adjacent Cottage.
+Notes: Adjacent refers to up, down, left, and right, not diagonal. Adjacent fed and unfed Cottage score 1 point.
+
+6. Theater: 
+1 point for each other unique building type in the same row and column as Theater.
+Notes: A Theater's score is the total number of unique building types besides Theater that share a row or column with that Theater, for a maximum score of 6 points. If there are buildings of the same type in both the same row and column as Theater, that building type only counts once toward Theater's score. Monument counts as a unique building type (unless it is Barrett Castle, which counts as 2 Cottages).
+
+
+7. Factory:
+When constructed, place 1 of the 5 resources on Factory. When another player names this resource, you may place a different resource instead.
+Notes: You may choose for multiple Factories to hold the same resource, but it offers you no advantage.
+
+
+8. Cathedral of Caterina:
+2 points. Empty squares in your town are worth 0 points instead of -1 points.
+Notes: This applies only to empty squares.
+on your own board.
+
+
+
+
+// DESELECTING CELLS AFTER PLACING building
+I want the cells to be deselcted and the selectedGridIndices array emptied after placing 
+a building on the grid. At the moment, after placing a building on the grid, the cells 
+deselect only if I click on a new resource from the resource deck. However, 
+after placing a building on the grid if I click on a resource on the grid, 
+it includes the new index to selectedGridIndices which should be empty at that point. 
+Does this make sense?  

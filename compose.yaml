@@ -1,7 +1,7 @@
 services:
   vite:
     image: node:22
-    container_name: "tictactoe-vite"
+    container_name: "tictactoe-vite-tt"
     ports:
       - "5173:5173"  # Vite dev server default
     working_dir: /app
