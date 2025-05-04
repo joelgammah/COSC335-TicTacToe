@@ -27,6 +27,7 @@ export default ({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        '/Games':               { target: env.VITE_BACKEND_URL, changeOrigin: true },
       },
       watch: {
         usePolling: true,
@@ -35,6 +36,9 @@ export default ({ mode }) => {
     test: {
       globals: true,
       environment: 'jsdom',
+      transformMode: {
+        web: [/\.[jt]sx?$/]
+      },
       coverage: {
         reporter: ['text', 'html'], 
         reportsDirectory: './coverage',

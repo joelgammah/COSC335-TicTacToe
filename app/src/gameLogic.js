@@ -119,12 +119,14 @@ export const colorToResource = {
   
   // Rotate a pattern 90° clockwise: (row, col) → (col, -row)
   export function rotate90(pattern) {
-    return pattern.map(({ color, row, col }) => ({
-      color,
-      row:   col,
-      col:  -row
-    }));
-  }
+      return pattern.map(({ color, row, col }) => {
+        const newRow = col;
+        const rawCol = -row;
+        // convert -0 to +0
+        const newCol = rawCol === 0 ? 0 : rawCol;
+        return { color, row: newRow, col: newCol };
+      });
+    }
   
   // Flip a pattern horizontally: (row, col) → (row, -col)
   export function flipHorizontal(pattern) {
@@ -208,7 +210,7 @@ export const colorToResource = {
   }
 
 
-export function calculateScore(grid) {
+export function calculateScore(grid, factoryResources = {}) {
   const N = 4;
   let score = 0;
 
@@ -269,6 +271,12 @@ export function calculateScore(grid) {
   // 6) Cathedral of Caterina: 2 pts each
   const cathedralCount = grid.filter(c => c === 'Catedral').length;
   score += cathedralCount * 2;
+
+  //  — Resource‐based scoring for Factories — might have to even remove it
+  // Each cube stored is worth 0 point:
+  Object.values(factoryResources).forEach(({ count = 1 }) => {
+    score += 0
+  });
 
   // 7) Empty squares penalty: -1 each, unless you have a Cathedral
   const emptyCount = grid.filter(c => c === null).length;

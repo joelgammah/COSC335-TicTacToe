@@ -53,9 +53,9 @@ export async function fetchDefinitions() {
  * Fetch the badges this user has unlocked
  * @param {string} idToken Firebase ID token
  */
-export async function fetchUserAchievements(idToken) {
+export async function fetchUserAchievements(token) {
   const res = await fetch('/api/user-achievements', {
-    headers: { Authorization: `Bearer ${idToken}` }
+    headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error(`Fetch user achievements failed: ${res.status}`);
   return res.json();

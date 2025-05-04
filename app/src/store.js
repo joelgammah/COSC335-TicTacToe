@@ -28,6 +28,12 @@ export const buildingConfig = {
 
 // ===== Zustand Store =====
 export const useTownStore = create((set, get) => ({
+
+  // ── GAME IDENTIFIER ──────────────────────
+  gameId: null,                         // Firestore document ID for current session
+  setGameId: (id) => set({ gameId: id }),
+
+  // ── GAME STATE ───────────────────────────
   grid: Array(16).fill(null),
   resourceDeck: allColors.slice(0,3).map((color,i)=>({ id:`${color}-${i}`, color, name: colorToResource[color] })),
   selectedResourceId: null,
@@ -36,15 +42,23 @@ export const useTownStore = create((set, get) => ({
   patternIndices: [],
   mode: 'normal',
   buildingError: null,
+  factoryResources: {},
+  score: 0,
 
-  resetGrid: () => set({
-    grid: Array(16).fill(null),
-    selectedResourceId: null,
-    selectedGridIndices: [],
-    selectedBuilding: null,
-    patternIndices: [],
-    mode: 'normal',
-    buildingError: null
+  resetGrid: () => set(state => {
+    return{
+      gameId: null,
+      grid: Array(16).fill(null),
+      resourceDeck: allColors.slice(0,3).map((color,i)=>({ id:`${color}-${i}`, color, name: colorToResource[color] })),
+      selectedResourceId: null,
+      selectedGridIndices: [],
+      selectedBuilding: null,
+      factoryResources: {},
+      patternIndices: [],
+      mode: 'normal',
+      buildingError: null,
+      score:0
+    }
   }),
 
   selectResourceCard: id => set(state => ({
@@ -73,6 +87,13 @@ export const useTownStore = create((set, get) => ({
     })
     return { grid: newGrid, resourceDeck: newDeck, selectedResourceId: null }
   }),
+
+  assignFactoryResource: (idx, resource) => set(state => ({
+    factoryResources: {
+      ...state.factoryResources,
+      [idx]: { resource, count: 1 }
+    }
+  })),
 
   toggleGridSelection: idx => set(state => {
     console.log('[store.toggleGridSelection] clicked cell:', idx, 'before:', state.selectedGridIndices)
@@ -112,40 +133,30 @@ export const useTownStore = create((set, get) => ({
       mode: 'placingBuilding',
       patternIndices: cellsToClear
     })
-  },
+  }, 
 
   placeBuildingAt: idx => set(state => {
     console.log('[store.placeBuildingAt] at index:', idx, 'patternIndices:', state.patternIndices)
-    const { patternIndices, selectedBuilding, grid } = get()
+    const { patternIndices, selectedBuilding, grid, factoryResources } = state
     if (!patternIndices.includes(idx) || !selectedBuilding) return {}
-
-    // 1) Apply the building and clear out tiles
+  
+    // 1) Build as usual
     const newGrid = [...grid]
     newGrid[idx] = selectedBuilding
-    patternIndices.forEach(i => {
-      if (i !== idx) newGrid[i] = null
-    })
+    patternIndices.forEach(i => { if (i !== idx) newGrid[i] = null })
 
-    // 2) Recompute score
-    const newScore = calculateScore(newGrid)
-
-    // 3) Reset everything, including selectedGridIndices
+  
+    // 2) Score (factoryResources was already updated by the modal if needed)
+    const newScore = calculateScore(newGrid, factoryResources)
+  
+    // 3) Reset selection & mode
     return {
       grid: newGrid,
       score: newScore,
       selectedBuilding: null,
       patternIndices: [],
-      selectedGridIndices: [],   // ← clear the old selections here
+      selectedGridIndices: [],
       mode: 'normal'
     }
-  }),
-
-  resetGrid: () => {
-    const emptyGrid = Array(16).fill(null)
-    return {
-      grid: emptyGrid,
-      score: 0,
-      /* …other resets… */
-    }
-  }
+  })
 }))

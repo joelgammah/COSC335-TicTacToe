@@ -32,23 +32,42 @@ async function verifyToken(req) {
   return decoded.uid;
 }
 
-/** 1) Save a finished game → `Games` */
+/** 1) Save or update a game session → `Games` */
 app.post("/save-game", async (req, res) => {
   console.log("🔥 [save-game] payload:", req.body);
   try {
     const uid = await verifyToken(req);
-    const { boardState, score, startTime, endTime, metadata } = req.body;
+    const {
+      gameId,
+      boardState,
+      score,
+      startTime,
+      endTime,
+      factoryResources,
+      metadata = {}
+    } = req.body;
 
-    const docRef = await db.collection("Games").add({
-      userId:     uid,
-      boardState,                 // e.g. array or comma-string
-      score,                      // number
-      startTime:   admin.firestore.Timestamp.fromDate(new Date(startTime)),
-      endTime:     admin.firestore.Timestamp.fromDate(new Date(endTime)),
-      metadata:    metadata || {}, 
-    });
+    const data = {
+      userId:        uid,
+      boardState,
+      score,
+      factoryResources,
+      metadata,
+      startTime:     admin.firestore.Timestamp.fromDate(new Date(startTime)),
+      endTime:       admin.firestore.Timestamp.fromDate(new Date(endTime)),
+      updatedAt:     admin.firestore.FieldValue.serverTimestamp()
+    };
 
-    res.status(200).json({ success: true, gameId: docRef.id });
+    const games = db.collection("Games");
+    if (gameId) {
+      // upsert into the same document
+      await games.doc(gameId).set(data, { merge: true });
+      return res.status(200).json({ success: true, gameId });
+    } else {
+      // first save → auto‑ID
+      const docRef = await games.add(data);
+      return res.status(200).json({ success: true, gameId: docRef.id });
+    }
   } catch (e) {
     console.error("save-game error", e);
     res.status(500).json({ error: e.message });
@@ -59,23 +78,24 @@ app.post("/save-game", async (req, res) => {
 app.post("/unlock-achievement", async (req, res) => {
   try {
     const uid = await verifyToken(req);
-    const { achievementId, viaGame } = req.body;
-    if (!achievementId || !viaGame) {
-      return res.status(400).json({ error: "Missing fields" });
+    const { gameId, achievementId } = req.body;
+
+    if (!achievementId || !gameId) {
+      return res.status(400).json({ error: "Missing gameId or achievementId" });
     }
 
-    const docId = `${uid}_${achievementId}`;
+    const docId = `${gameId}_${achievementId}`;
     const achRef = db.collection("UserAchievements").doc(docId);
-    const snap = await achRef.get();
+    const snap  = await achRef.get();
     if (snap.exists) {
       return res.status(200).json({ success: false, message: "Already unlocked" });
     }
 
     await achRef.set({
       userId:        uid,
+      gameId,
       achievementId,
-      earnedAt:      admin.firestore.FieldValue.serverTimestamp(),
-      viaGame:       db.doc(`Games/${viaGame}`)
+      earnedAt:      admin.firestore.FieldValue.serverTimestamp()
     });
 
     res.status(200).json({ success: true });
@@ -136,12 +156,19 @@ app.post("/create-user", async (req, res) => {
 app.get("/Games", async (req, res) => {
   try {
     const uid = await verifyToken(req);
+    // Fetch all games for this user (no index needed)
     const snap = await db
       .collection("Games")
       .where("userId", "==", uid)
-      .orderBy("endTime", "desc")
       .get();
-    const Games = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const Games = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => {
+        // Firestore Timestamps → Date → number for sorting
+        const aMs = a.endTime.toDate();
+        const bMs = b.endTime.toDate();
+        return bMs - aMs;
+      });   
     res.json(Games);
   } catch (e) {
     console.error("get Games error", e);

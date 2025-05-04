@@ -48,3 +48,33 @@ deselect only if I click on a new resource from the resource deck. However,
 after placing a building on the grid if I click on a resource on the grid, 
 it includes the new index to selectedGridIndices which should be empty at that point. 
 Does this make sense?  
+
+
+// Next Steps
+Swap out the prompt for a nicer modal or inline picker.
+Allow stacking multiple cubes (count > 1) by updating assignFactoryResource.
+Persist factoryResources in your saved game payload so it round-trips to Firestore.
+Let me know if you’d like to start with a simple window.prompt demo or jump straight 
+into a custom React picker UI!
+
+// So currently my game saves (ie. uploads the final board state, score, etc.) after one of these two things:
+i) I press the save game button 
+ii) when there is no empty space on the grid.
+
+I want to change the way I save game sessions to Firestore. 
+I want to have an "End Game" button that calculates score and uploads final game
+information to Firebase. 
+
+
+Observations:
+
+I need to place a building before I can click the save game button. It should work for 
+at least placing a resource or an empty grid (whichever makes sense)
+
+
+The 'Play Again' button just takes me back to the old game. It does not reset
+the grid or the score. 
+
+Each save (auto, manual, end) does not upsert that same document it
+rather creates new auto‑IDs.
+
