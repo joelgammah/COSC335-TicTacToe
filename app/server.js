@@ -192,6 +192,41 @@ app.get("/api/user-achievements", async (req, res) => {
   }
 });
 
+/** 8) Leaderboard: total points per user */
+// after your other routes...
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    // require the caller be signed in
+    await verifyToken(req);
+
+    // 1) Fetch all users
+    const usersSnap = await db.collection('Users').get();
+    // 2) For each user, sum up their game scores
+    const results = await Promise.all(usersSnap.docs.map(async userDoc => {
+      const userId      = userDoc.id;
+      const { displayName } = userDoc.data() || {};
+      const gamesSnap   = await db
+        .collection('Games')
+        .where('userId', '==', userId)
+        .get();
+      const totalScore  = gamesSnap.docs.reduce(
+        (sum, g) => sum + (g.data().score || 0),
+        0
+      );
+      return { userId, displayName: displayName || null, totalScore };
+    }));
+
+    // 3) Sort descending
+    results.sort((a, b) => b.totalScore - a.totalScore);
+
+    res.json(results);
+  } catch (e) {
+    console.error('leaderboard error', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
 const PORT = process.env.VITE_BACKEND_PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

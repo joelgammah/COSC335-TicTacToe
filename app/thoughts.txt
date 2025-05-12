@@ -66,15 +66,40 @@ I want to have an "End Game" button that calculates score and uploads final game
 information to Firebase. 
 
 
-Observations:
+rotate90:
 
-I need to place a building before I can click the save game button. It should work for 
-at least placing a resource or an empty grid (whichever makes sense)
+There is no +0, -0 in Math that's what is casuing the confusion. WHat do you think?
+
+Theater test:
+
+other points = Cottage is being fed by a Farm (+3), 1 Tavern (+2) = 5
+3 unique neighbor types -> +3; penalty=-(16-4)= -12 => -9 + 5 = -4
 
 
-The 'Play Again' button just takes me back to the old game. It does not reset
-the grid or the score. 
+Factory test:
 
-Each save (auto, manual, end) does not upsert that same document it
-rather creates new auto‑IDs.
+For now we only store 1 resource. I also found out Factories do not score any points.
+Found this online:
+In Tiny Towns, a Factory does not score any points directly. Instead, 
+it provides a strategic advantage by allowing you to replace a named resource 
+when building other structures. 
+Here's a more detailed explanation: 
+No Direct Points:
+Factories don't contribute to your score at the end of the game like many 
+other buildings do.
+Strategic Resource Replacement:
+When you build a Factory, you place a resource cube on it. From then on, 
+whenever another player (or a card) names that resource as the "Master Builder" choice, you can choose to use a different resource instead. This flexibility can be crucial in the later stages of the game, allowing you to build structures you otherwise wouldn't have been able to afford.
 
+
+
+
+
+// New scoring
+So apparently, at the end of the game, any space that does not
+have a building becomes an empty space. So the fact that a
+cell has resource does not mean you don't get penalized for
+it. Except you have Cathedral of Caterina of course. 
+
+which means we will have to change the logic for perfectTown
+as Well

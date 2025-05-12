@@ -278,8 +278,9 @@ export function calculateScore(grid, factoryResources = {}) {
     score += 0
   });
 
-  // 7) Empty squares penalty: -1 each, unless you have a Cathedral
-  const emptyCount = grid.filter(c => c === null).length;
+  // 7) Empty‑space penalty: any cell NOT occupied by a building (even if it holds a resource) counts as empty
+  const buildingNames = new Set(Object.keys(buildings));
+  const emptyCount = grid.filter(cell => !buildingNames.has(cell)).length;
   if (cathedralCount === 0) {
     score -= emptyCount;
   }

@@ -4,7 +4,7 @@ import ResourceDeck from './ResourceDeck.jsx';
 import BuildingDeck from './BuildingDeck.jsx';
 import ResourcePicker from './ResourcePicker.jsx';
 import { useTownStore } from './store.js';
-import { saveGame, unlockAchievement } from './compat-api.js';
+import { saveGame, unlockAchievement, fetchGames } from './compat-api.js';
 import { fetchDefinitions, fetchUserAchievements } from './logic.js';
 import { resourceIcons, buildingIcons } from './iconMap.js';
 
@@ -22,6 +22,8 @@ export default function TinyTowns() {
   const factoryResources = useTownStore(s => s.factoryResources);
   const assignFactoryResource = useTownStore(s => s.assignFactoryResource);
   const resetGrid           = useTownStore(s => s.resetGrid);
+  const loadGame            = useTownStore(s => s.loadGame);
+  const gameId              = useTownStore(s => s.gameId);
 
   const [definitions, setDefinitions] = useState([]);
   const [unlocked,    setUnlocked]    = useState([]);
@@ -51,7 +53,9 @@ export default function TinyTowns() {
           .then(setUnlocked)
           .catch(err => console.error('Error loading user achievements:', err));
       } else {
-        setUnlocked([]);
+        // clear achievements + game state
+        setUnlocked([])
+        resetGrid();
       }
     });
     return unsubscribe;
@@ -149,12 +153,13 @@ export default function TinyTowns() {
 
   // ─── END GAME HANDLER ────────────────────────────────────────────
   const handleEndGame = async () => {
+    const finalScore = useTownStore.getState().computeScore();
     setSaveStatus('saving');
     const endTime = new Date().toISOString();
     try {
       const { success } = await saveGame({
         boardState: grid,
-        score,
+        score: finalScore,
         startTime,
         endTime,
         factoryResources,
@@ -171,12 +176,13 @@ export default function TinyTowns() {
   };
 
   const handleManualSave = async () => {
+    const finalScore = useTownStore.getState().computeScore();
     setSaveStatus('saving')
     try {
       const endTime = new Date().toISOString()
       const { success } = await saveGame({
         boardState: grid,
-        score,
+        score: finalScore,
         startTime,
         endTime,
         metadata: {}
@@ -238,6 +244,19 @@ export default function TinyTowns() {
           >
             {saveStatus === 'saving' ? 'Saving…' : 'Save Game'}
           </button>
+          <button
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            onClick={async () => {
+              const games = await fetchGames();
+              if (games.length) {
+                const last = games[0];
+                loadGame(last);
+              }
+            }}
+          >
+            Load Last Game
+          </button>
+
           {saveStatus === 'success' && <span className="text-green-600">Saved!</span>}
           {saveStatus === 'error'   && <span className="text-red-600">Error</span>}
         </div>

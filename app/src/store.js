@@ -57,14 +57,34 @@ export const useTownStore = create((set, get) => ({
       patternIndices: [],
       mode: 'normal',
       buildingError: null,
-      score:0
+      score:0,
     }
-  }),
+  }), 
 
   selectResourceCard: id => set(state => ({
     selectedResourceId: state.selectedResourceId === id ? null : id,
     selectedGridIndices: []
   })),
+
+  computeScore: () => {
+    const { grid, factoryResources } = get();
+    const newScore = calculateScore(grid, factoryResources);
+    set({ score: newScore });
+    return newScore;
+  },
+
+  loadGame: game => {
+    set({
+      // repopulate all the core slices
+      grid:           game.boardState,
+      factoryResources: game.factoryResources || {},
+      startTime:      game.startTime,
+      // you can choose to trust `game.score` or recalc:
+      score:          calculateScore(game.boardState, game.factoryResources),
+      gameId:         game.id
+    });
+  },
+  
 
   refreshCard: id => set(state => ({
     resourceDeck: state.resourceDeck.map(card => {

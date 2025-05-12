@@ -106,3 +106,35 @@ export async function fetchUserGames() {
   return res.json(); // array of game docs with { id, ...data }
 }
 
+/**
+ * Fetch all games (most recent first)
+ */
+export async function fetchGames() {
+  const auth = window.firebaseAuth;
+  if (!auth?.currentUser) throw new Error('User must be signed in');
+  const token = await auth.currentUser.getIdToken(true);
+
+  const res = await fetch('/Games', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+  return res.json(); // array, ordered by endTime desc
+}
+
+/**
+ * GET /leaderboard → [{ userId, displayName, totalScore }, …]
+ */
+export async function fetchLeaderboard() {
+  const auth = window.firebaseAuth;
+  if (!auth?.currentUser) throw new Error('User must be signed in');
+  const token = await auth.currentUser.getIdToken(true);
+
+  const res = await fetch('/api/leaderboard', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error(`Leaderboard fetch failed: ${res.status}`);
+  return res.json();
+}
+
+
+
