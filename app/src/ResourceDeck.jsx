@@ -39,7 +39,7 @@ export default function ResourceDeck() {
             {/* Resource Name */}
             <span className="text-sm font-semibold">{card.name}</span>
 
-            {/* Refresh button (only when selected) */}
+            {/* Refresh button (only when selected) Remove this to remove the Refresh button*/}
             {isSelected && (
               <button
                 onClick={e => {

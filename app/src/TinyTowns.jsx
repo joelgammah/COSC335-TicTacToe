@@ -223,7 +223,7 @@ export default function TinyTowns() {
     <div className="px-8 pt-6">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Score: {score}</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Score: {"shows after game"}</h2>
         <div className="flex items-center space-x-4">
           <button
             onClick={handleEndGame}
